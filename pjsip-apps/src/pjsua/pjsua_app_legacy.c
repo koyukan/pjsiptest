@@ -21,6 +21,9 @@
 #include <pjsua-lib/pjsua.h>
 #include "pjsua_app_common.h"
 #include <pjsua-lib/pjsua_internal.h>
+#include <pjmedia/stream.h>
+#include <pjsip.h>
+#include <pjmedia.h>
 
 #define THIS_FILE "pjsua_app_legacy.c"
 
@@ -1502,14 +1505,17 @@ static void ui_call_transfer_replaces(pj_bool_t no_refersub)
 
 static void ui_stream_pause()
 {
-	printf("ui_stream_pause: Withing the function");
+	printf("ui_stream_pause: Withing the function \n");
 	pjsua_call call = pjsua_var.calls[current_call];
-	printf("ui_stream_pause: Call selected");
+	printf("ui_stream_pause: Call selected \n");
 
 	if (call.media[0].type == PJMEDIA_TYPE_AUDIO)
 	{
 		printf("ui_stream_pause: Media type is determined as PJMEDIA_TYPE_AUDIO\n");
-		auto stream = call.media[0].strm.a.stream;
+		auto *stream = &(call.media[0].strm.a.stream);
+		printf("ui_stream_pause: Stream selected\n");
+		printf("Size of: %d \n", sizeof(stream));
+		pjmedia_stream_send_rtcp_bye(stream);
 		if (stream)
 		{
 			pjmedia_stream_pause(stream, PJMEDIA_DIR_ENCODING);

@@ -3398,16 +3398,19 @@ PJ_DEF(pj_status_t)
 pjmedia_stream_pause(pjmedia_stream *stream,
 					 pjmedia_dir dir)
 {
+	printf("pjmedia_stream_pause: Stream %s will be paused\n", *stream);
 	PJ_ASSERT_RETURN(stream, PJ_EINVAL);
 
 	if ((dir & PJMEDIA_DIR_ENCODING) && stream->enc)
 	{
+		printf("pjmedia_stream_pause: %s stream will be paused\n", *stream);
 		stream->enc->paused = 1;
 		PJ_LOG(4, (stream->port.info.name.ptr, "Encoder stream paused"));
 	}
 
 	if ((dir & PJMEDIA_DIR_DECODING) && stream->dec)
 	{
+
 		stream->dec->paused = 1;
 
 		/* Also reset jitter buffer */
