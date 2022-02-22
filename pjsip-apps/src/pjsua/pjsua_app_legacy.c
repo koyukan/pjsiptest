@@ -265,7 +265,7 @@ static void keystroke_help()
 	puts("|  #  Send RFC 2833 DTMF       | cl  List ports           |  d  Dump status   |");
 	puts("|  *  Send DTMF with INFO      | cc  Connect port         | dd  Dump detailed |");
 	puts("| dq  Dump curr. call quality  | cd  Disconnect port      | dc  Dump config   |");
-	puts("|  P  Pause RTP Stream         |  V  Adjust audio Volume  |  f  Save config   |");
+	puts("|  J  Call Jotron Rx           |  V  Adjust audio Volume  |  f  Save config   |");
 	puts("|  S  Send arbitrary REQUEST   | Cp  Codec priorities     |                   |");
 	puts("+-----------------------------------------------------------------------------+");
 #if PJSUA_HAS_VIDEO
@@ -863,6 +863,69 @@ static void ui_make_new_call()
 	TEST_MULTIPART(&msg_data_);
 	pjsua_call_make_call(current_acc, &tmp, &call_opt, NULL,
 						 &msg_data_, &current_call);
+}
+
+static void ui_make_Rx_call()
+{
+	char buf[128];
+	pjsua_msg_data msg_data_;
+	input_result result;
+	pj_str_t tmp;
+
+	printf("(You currently have %d calls)\n", pjsua_call_get_count());
+
+	ui_input_url("Make call", buf, sizeof(buf), &result);
+	if (result.nb_result != PJSUA_APP_NO_NB)
+	{
+
+		if (result.nb_result == -1 || result.nb_result == 0)
+		{
+			puts("You can't do that with make call!");
+			return;
+		}
+		else
+		{
+			pjsua_buddy_info binfo;
+			pjsua_buddy_get_info(result.nb_result - 1, &binfo);
+			tmp.ptr = buf;
+			pj_strncpy(&tmp, &binfo.uri, sizeof(buf));
+		}
+	}
+	else if (result.uri_result)
+	{
+		tmp = pj_str(result.uri_result);
+	}
+	else
+	{
+		tmp.slen = 0;
+	}
+
+	pjsua_msg_data_init(&msg_data_);
+
+	// Header 1
+	pj_str_t hname = pj_str((char *)"Subject");
+	pj_str_t hvalue = pj_str((char *)"radio");
+	pjsip_generic_string_hdr my_hdr1;
+	pjsip_generic_string_hdr_init2(&my_hdr1, &hname, &hvalue);
+	pj_list_push_back(&msg_data_.hdr_list, &my_hdr1);
+
+	// Header 2
+	hname = pj_str((char *)"WG67-Version");
+	hvalue = pj_str((char *)"radio.01");
+	pjsip_generic_string_hdr my_hdr2;
+	pjsip_generic_string_hdr_init2(&my_hdr2, &hname, &hvalue);
+	pj_list_push_back(&msg_data_.hdr_list, &my_hdr2);
+
+	// Heade 3
+	hname = pj_str((char *)"Priority");
+	hvalue = pj_str((char *)"normal");
+	pjsip_generic_string_hdr my_hdr3;
+	pjsip_generic_string_hdr_init2(&my_hdr3, &hname, &hvalue);
+	pj_list_push_back(&msg_data_.hdr_list, &my_hdr3);
+
+	TEST_MULTIPART(&msg_data_);
+	pjsua_call_make_call2(current_acc, &tmp, &call_opt, NULL,
+						  &msg_data_, &current_call);
 }
 
 static void ui_make_multi_call()
@@ -2212,6 +2275,14 @@ void legacy_main(void)
 			 */
 			printf("Call with %d is being paused\n", current_call);
 			ui_stream_pause();
+			break;
+
+		case 'J':
+			/*
+			 * Call Jotron Rx.
+			 */
+			printf("Calling Jotron Rx\n");
+			ui_make_Rx_call();
 			break;
 
 		case 'H':
