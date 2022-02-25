@@ -22,7 +22,7 @@
 #define THIS_FILE	"pjsua_app.c"
 
 //#define STEREO_DEMO
-//#define TRANSPORT_ADAPTER_SAMPLE
+#define TRANSPORT_ADAPTER_SAMPLE
 //#define HAVE_MULTIPART_TEST
 
 /* Ringtones		    US	       UK  */

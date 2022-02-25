@@ -27,6 +27,8 @@
 
 #define THIS_FILE "pjsua_app_legacy.c"
 
+
+
 /* An attempt to avoid stdout buffering for python tests:
  * - call 'fflush(stdout)' after each call to 'printf()/puts()'
  * - apply 'setbuf(stdout, 0)', but it is not guaranteed by the standard:
@@ -2142,6 +2144,9 @@ static void ui_handle_ip_change()
 	pjsua_handle_ip_change(&param);
 }
 
+
+
+
 /*
  * Main "user interface" loop.
  */
@@ -2195,6 +2200,7 @@ void legacy_main(void)
 		pjsua_call_setting_default(&call_opt);
 		call_opt.aud_cnt = app_config.aud_cnt;
 		call_opt.vid_cnt = app_config.vid.vid_cnt;
+
 
 		switch (menuin[0])
 		{
